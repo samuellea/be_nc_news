@@ -6,33 +6,24 @@ exports.seed = (knex, Promise) => {
   return knex.migrate
     .rollback()
     .then(() => knex.migrate.latest())
-    .then(() => {
+    .then(() => { // failing here
       return knex('topics')
         .insert(topicsData)
         .returning('*')
     })
-    .then(topicsRows => {
-      console.log(topicsRows);
+    .then(() => {
       return knex('users')
         .insert(usersData)
         .returning('*')
     })
-    .then(usersRows => {
-      console.log(usersRows);
-      // we need some timestamp formatting logic here.
+    .then(() => {
       let articlesWithFormattedTime = formatTimestamp(articlesData);
       return knex('articles')
         .insert(articlesWithFormattedTime)
         .returning('*')
     })
-    .then(articlesRows => {
-      // we need some timestamp formatting logic here too.
-      // let commentsWithFormattedTime = formatTimestamp(commentsData);
-
-      // we ALSO need to do some other reformatting of our comment objects.
-      // NAMELY, we need to reformat the belongs_to in the comments data to be article_id, as specified by our schema, using a reference object.
-      // AND change the 'created_by' key name to 'author'.
-      let formattedComments = formatComments(comments);
+    .then(articles => {
+      let formattedComments = formatComments(commentsData, articles);
       return knex('comments')
         .insert(formattedComments)
         .returning('*')

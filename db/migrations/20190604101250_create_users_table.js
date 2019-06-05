@@ -9,5 +9,5 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
   console.log('dropping users table...');
-  return knex.schema.dropTable('topics');
+  return knex.schema.dropTable('users');
 };
