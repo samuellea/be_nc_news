@@ -5,11 +5,4 @@ exports.sendTopics = (req, res, next) => {
   selectTopics().then((topics) => {
     res.status(200).send({ topics });
   }).catch();
-}
-
-
-// exports.sendHouses = (req, res, next) => {
-//   selectHouses(req.query).then((houses) => {
-//     res.status(200).send({ houses });
-//   });
-// };
+};
