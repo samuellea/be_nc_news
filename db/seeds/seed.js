@@ -20,17 +20,21 @@ exports.seed = (knex, Promise) => {
     .then(usersRows => {
       console.log(usersRows);
       // we need some timestamp formatting logic here.
-      formatTimestamp(articlesData)
-
+      let articlesWithFormattedTime = formatTimestamp(articlesData);
       return knex('articles')
-        .insert(articlesData)
+        .insert(articlesWithFormattedTime)
         .returning('*')
     })
     .then(articlesRows => {
-      console.log(articlesRows);
       // we need some timestamp formatting logic here too.
+      // let commentsWithFormattedTime = formatTimestamp(commentsData);
+
+      // we ALSO need to do some other reformatting of our comment objects.
+      // NAMELY, we need to reformat the belongs_to in the comments data to be article_id, as specified by our schema, using a reference object.
+      // AND change the 'created_by' key name to 'author'.
+
       return knex('comments')
-        .insert(commentsData)
+        .insert(commentsWithFormattedTime)
         .returning('*')
     })
 };
