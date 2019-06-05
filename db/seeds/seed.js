@@ -1,5 +1,5 @@
 const { articlesData, commentsData, topicsData, usersData } = require('../data');
-const { formatTimestamp } = require('../../utils');
+const { formatTimestamp, formatComments } = require('../../utils');
 
 exports.seed = (knex, Promise) => {
   console.log('Seeding...')
@@ -32,9 +32,9 @@ exports.seed = (knex, Promise) => {
       // we ALSO need to do some other reformatting of our comment objects.
       // NAMELY, we need to reformat the belongs_to in the comments data to be article_id, as specified by our schema, using a reference object.
       // AND change the 'created_by' key name to 'author'.
-
+      let formattedComments = formatComments(comments);
       return knex('comments')
-        .insert(commentsWithFormattedTime)
+        .insert(formattedComments)
         .returning('*')
     })
 };

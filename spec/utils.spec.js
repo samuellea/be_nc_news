@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { formatTimestamp, createRef } = require('../utils/')
+const { formatTimestamp, createRef, formatComments } = require('../utils/')
 
 describe('formatTimestamp()', () => {
   it('returns an empty array if passed an empty array', () => {
@@ -61,6 +61,7 @@ describe('createRef()', () => {
         body:
           'Call me Mitchell.',
         created_at: 1416140514171,
+        votes: 50
       }
     ];
     const actual = createRef(articles);
@@ -68,32 +69,101 @@ describe('createRef()', () => {
       'Living in the shadow of a great man': 1, 'Sony Vaio; or, The Laptop': 2
     };
     expect(actual).to.eql(expected);
-  })
-})
+  });
+});
 
-
-    // iterate across comments from data
-    // for each comment,
-    // take its 'belongs_to' value, and find the article with article.title the same as this.
-    // having found that, take that article's article.article_id,
-    // then replace the comment's 'belongs_to' property with 'article_id' with this retreived article.article_id
-    // result? --> an array of reformatted comments.
-    // question - WHY a reference object? what's that required for?
-    // because... we've gotta change TWO things for each comment? well, THREE, really -- created_by, belongs_to and created_at...
-    // so are we creating three seperate utils sub functions, and combining them in the seed file..
-    // or combining them in a seperate utils big function that uses those three... 'formatComments'...? 
-
-    // const comment = {
-    //   body: "I think things are a certain way. The end.",
-    //   votes: 16,
-    //   created_at: 1511354163389,
-    //   created_by: 'butter_bridge', // --> 
-    //   belongs_to: "They're not exactly dogs, are they?", // --> get its article_id ... where ... article.title
-    // }
-    // const expected = {
-    //   body: "I think things are a certain way. The end.",
-    //   votes: 16,
-    //   created_at: 1511354163389,
-    //   author: 'butter_bridge', // !
-    //   article_id: 1, // !
-    // }
+describe('formatComments()', () => {
+  it(`reformats a single comment's keys and properties, changing 'created_by' to 'author', \n 'belongs_to' to 'article_id' with an article's id value, and the 'created_at' value to a JS Date object`, () => {
+    const article = [
+      {
+        article_id: 1,
+        title: 'Living in the shadow of a great man',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        body: 'I find this existence challenging',
+        created_at: 1542284514171,
+        votes: 100,
+      }
+    ]
+    const comment = [
+      {
+        created_at: 1511354163389,
+        created_by: 'butter_bridge',
+        belongs_to: 'Living in the shadow of a great man',
+      }
+    ];
+    const formattedTime = new Date(1511354163389);
+    const actual = formatComments(comment, article)
+    const expected = [
+      {
+        created_at: formattedTime,
+        author: 'butter_bridge',
+        article_id: 1,
+      }
+    ]
+    expect(actual).to.eql(expected);
+  });
+  it('reformats multiple comment objects', () => {
+    const articles = [
+      {
+        article_id: 1,
+        title: 'Living in the shadow of a great man',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        body: 'I find this existence challenging',
+        created_at: 1542284514171,
+        votes: 100,
+      },
+      {
+        article_id: 2,
+        title: 'Sony Vaio; or, The Laptop',
+        topic: 'mitch',
+        author: 'icellusedkars',
+        body:
+          'Call me Mitchell.',
+        created_at: 1416140514171,
+        votes: 50
+      }
+    ]
+    const comments = [
+      {
+        comment_id: 1,
+        body: "I think things are a certain way. The end.",
+        votes: 16,
+        created_at: 1511354163389,
+        created_by: 'butter_bridge',
+        belongs_to: 'Living in the shadow of a great man',
+      },
+      {
+        comment_id: 2,
+        body: "I must say I like this article.",
+        votes: 1,
+        created_at: 1511354163600,
+        created_by: 'lemon_jelly',
+        belongs_to: 'Sony Vaio; or, The Laptop',
+      }
+    ];
+    const formattedTime1 = new Date(1511354163389);
+    const formattedTime2 = new Date(1511354163600);
+    const actual = formatComments(comments, articles);
+    const expected = [
+      {
+        comment_id: 1,
+        body: "I think things are a certain way. The end.",
+        votes: 16,
+        created_at: formattedTime1,
+        author: 'butter_bridge',
+        article_id: 1,
+      },
+      {
+        comment_id: 2,
+        body: "I must say I like this article.",
+        votes: 1,
+        created_at: formattedTime2,
+        author: 'lemon_jelly',
+        article_id: 2,
+      }
+    ]
+    expect(actual).to.eql(expected);
+  });
+});
