@@ -1,13 +1,12 @@
-const { selectUserByID } = require("../models/users-models.js");
+const { selectUserByUsername } = require("../models/users-models.js");
 
-exports.sendUserByID = (req, res, next) => {
-  console.log('reaching sendUserByID controller...');
+exports.sendUserByUsername = (req, res, next) => {
   const { username } = req.params;
-  selectUserByID(username).then(([user]) => {
+  selectUserByUsername(username).then(([user]) => {
     if (!user) {
       return Promise.reject({
         status: 404,
-        message: `No user found for username: ${username}`,
+        msg: `No user found for username: ${username}`,
       });
     } else {
       res.status(200).send({ user })

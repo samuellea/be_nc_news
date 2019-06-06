@@ -1,7 +1,6 @@
 const connection = require('../db/connection.js')
 
-exports.selectUserByID = username => {
-  console.log('reaching selectUserByID model...');
+exports.selectUserByUsername = username => {
   return connection
     .select('*')
     .from('users')

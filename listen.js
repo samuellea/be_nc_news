@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'test'; // <-- comment out to work with dev data on nodemon.
+
 const app = require('./app');
 
 const { PORT = 9090 } = process.env;

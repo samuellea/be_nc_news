@@ -2,7 +2,7 @@ const { articlesData, commentsData, topicsData, usersData } = require('../data')
 const { formatTimestamp, formatComments } = require('../../utils');
 
 exports.seed = (knex, Promise) => {
-  console.log('Seeding...')
+  // console.log('Seeding...')
   return knex.migrate
     .rollback()
     .then(() => knex.migrate.latest())

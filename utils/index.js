@@ -25,4 +25,21 @@ const formatComments = (comments, articles) => {
   })
 }
 
-module.exports = { formatTimestamp, createRef, formatComments }
+const generateArticlesErrMsg = (searchResults, author, topic) => {
+  let messageOption;
+  const onlyAuthor = Array.isArray(searchResults[0]) && searchResults[0].length > 0;
+  const onlyTopic = Array.isArray(searchResults[1]) && searchResults[1].length > 0;
+  const justNoAuthor = Array.isArray(searchResults[0]) && !searchResults[0].length;
+  const justNoTopic = Array.isArray(searchResults[1]) && !searchResults[1].length;
+  const neitherAuthorNorTopic = justNoAuthor && justNoTopic;
+  const bothAuthorAndTopic = onlyAuthor && onlyTopic;
+  if (onlyAuthor) messageOption = `author '${author}' hasn't written any yet.`;
+  if (onlyTopic) messageOption = `none currently exist on the topic of '${topic}'. Be the first to write one!`;
+  if (bothAuthorAndTopic) messageOption = `'${author}' hasn't written any articles, and '${topic}' has no articles for it.`
+  if (justNoAuthor) messageOption = `author '${author}' does not exist.`;
+  if (justNoTopic) messageOption = `topic '${topic}' does not exist.`;
+  if (neitherAuthorNorTopic) messageOption = `author '${author}' and topic '${topic}' do not exist.`;
+  return messageOption;
+}
+
+module.exports = { formatTimestamp, createRef, formatComments, generateArticlesErrMsg }
