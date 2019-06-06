@@ -209,23 +209,49 @@ describe('/', () => {
         });
       });
 
-      // describe('/:article_id', () => {
-      //   describe('GET', () => {
-      //     it('status:200 responds with an article object for the given article_id', () => {
-      //       return request(app)
-      //         .get('/api/articles/1')
-      //         .expect(200)
-      //         .then(({ body }) => {
-      //           expect(body.article).to.have.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
-      //           expect(body.article.author).to.equal('butter_bridge');
-      //           expect(body.article.title).to.equal('Living in the shadow of a great man');
-      //           expect(body.article.comment_count).to.equal('');
+      describe.only('/:article_id', () => {
+        describe('GET', () => {
+          it('status:200 responds with an article object for the given article_id', () => {
+            return request(app)
+              .get('/api/articles/1')
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.article).to.have.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
+                expect(body.article.author).to.equal('butter_bridge');
+                expect(body.article.title).to.equal('Living in the shadow of a great man');
+                expect(body.article.comment_count).to.equal('13');
+              })
+          })
+          it('status:400 when passed an invalid ID', () => { // 400 bad request - invalid ID
+            return request(app)
+              .get('/api/articles/dog')
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.status).to.equal(400);
+                expect(body.msg).to.equal('invalid input syntax for integer: "dog"');
+              })
+          })
+          it('status:404 when resource does not exist', () => { // 404 not found - resource doesnt exist on db
+            return request(app)
+              .get('/api/articles/99999')
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.status).to.equal(404);
+                expect(body.msg).to.equal('No article found with id 99999')
+              })
+          })
+        })
+        describe('PATCH', () => {
+          it('status:200 returns the succesfully updated article object with a new vote count', () => {
+            return request(app)
+              .patch('/api/articles/1')
+              .expect(200)
+              .then(({ body }) => {
 
-
-      //         })
-      //     })
-      //   })
-      // })
+              })
+          })
+        })
+      })
 
     });
   });

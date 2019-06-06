@@ -11,20 +11,21 @@ exports.handle500 = (err, req, res, next) => {
 };
 
 exports.handleCustomErrors = (err, req, res, next) => {
-  // console.log('reaching *** handleCustomErrors ***')
-  // console.log(err);
-  // console.log('------------------')
+  console.log('reaching *** handleCustomErrors ***')
+  console.log(err);
+  console.log('------------------')
   if (err.status) res.status(err.status).send({ status: err.status, msg: err.msg });
   else next(err);
 };
 
 exports.handlePsqlErrors = (err, req, res, next) => {
-  // console.log('reaching *** handlePsqlErrors ***')
-  // console.log(err.message.split(' - ')[1]);
-  // console.log('------------------')
+  console.log('reaching *** handlePsqlErrors ***')
+  console.log(err);
+  console.log(err.message.split(' - ')[1]);
+  console.log('------------------')
   const psqlBadRequestCodes = ['22P02', '42703'];
   if (psqlBadRequestCodes.includes(err.code))
-    res.status(400).send({ msg: err.message.split(' - ')[1] || 'Bad Request' });
+    res.status(400).send({ status: 400, msg: err.message.split(' - ')[1] || 'Bad Request' });
   else next(err);
 };
 

@@ -1,7 +1,21 @@
-const { selectAllArticles, selectArticleByID } = require("../models/articles-models.js");
+const { selectAllArticles, selectArticleByID, updateArticleByID } = require("../models/articles-models.js");
 const { selectUserByUsername } = require("../models/users-models.js")
 const { selectTopicBySlug } = require("../models/topics-models.js")
 const { generateArticlesErrMsg } = require('../utils/index.js')
+
+exports.sendArticleByID = (req, res, next) => {
+  const { article_id } = req.params;
+  selectArticleByID(article_id).then(([article]) => {
+    if (!article) {
+      return Promise.reject({
+        status: 404,
+        msg: `No article found with id ${article_id}`,
+      });
+    }
+    res.status(200).send({ article });
+  })
+    .catch(next);
+}
 
 exports.sendAllArticles = (req, res, next) => {
   const { author, topic } = req.query;
@@ -23,10 +37,10 @@ exports.sendAllArticles = (req, res, next) => {
     .catch(next);
 };
 
-exports.sendArticleByID = (req, res, next) => {
-  selectArticleByID().then(article => {
+exports.sendUpdatedArticleByID = (req, res, next) => {
+  const { body } = req.query;
+  updateArticleByID(body).then(article => {
+    console.log(article, '<----- articles-controllers.js')
     res.status(200).send({ article });
   })
-  console.log('reaching sendArticleByID controller')
 }
-
