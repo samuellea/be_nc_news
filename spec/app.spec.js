@@ -346,7 +346,7 @@ describe('/', () => {
             })
             // error-handling -- status:400 invalid keys on post object, status:400 required fields ('username','body') missing
           })
-          describe.only('GET', () => {
+          describe('GET', () => {
             it('status:200 responds with the comments for a given article when article has a single comment', () => {
               return request(app)
                 .get('/api/articles/6/comments')
@@ -455,5 +455,84 @@ describe('/', () => {
         });
       });
     });
+
+    describe.only('comments', () => {
+      describe('PATCH', () => {
+        it('status:200 returns the updated comment object with a newly incremented vote count', () => {
+          return request(app)
+            .patch('/api/comments/1')
+            .send({
+              inc_votes: 1
+            })
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comment).to.eql({
+                comment_id: 1,
+                author: 'butter_bridge',
+                article_id: 9,
+                votes: 17,
+                created_at: '2017-11-22T12:36:03.389Z',
+                body: `Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!`,
+              })
+              expect(body.comment.votes).to.equal(17);
+            })
+        })
+        it('status:200 returns the updated comment object with a newly decremented vote count', () => {
+          return request(app)
+            .patch('/api/comments/2')
+            .send({
+              inc_votes: -10
+            })
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comment).to.eql({
+                comment_id: 2,
+                author: 'butter_bridge',
+                article_id: 1,
+                votes: 4,
+                created_at: '2016-11-22T12:36:03.389Z',
+                body: `The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.`,
+              })
+              expect(body.comment.votes).to.equal(4);
+            })
+        })
+        it('status:400 no inc_votes on request body', () => {
+          return request(app)
+            .patch('/api/comments/1')
+            .send({})
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.status).to.equal(400);
+              expect(body.msg).to.equal(`A key of inc_votes is required on the request body!`);
+            })
+        })
+
+        it('status:400 Invalid inc_votes', () => {
+          return request(app)
+            .patch('/api/comments/1')
+            .send({
+              inc_votes: 'cat'
+            })
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.status).to.equal(400);
+              expect(body.msg).to.equal(`inc_votes of 'cat' is invalid - please provide an integer.`);
+            })
+        })
+
+        it(`status:400 Some other property on request body `, () => {
+          return request(app)
+            .patch('/api/comments/1')
+            .send({
+              inc_votes: 5, name: 'Mitch'
+            })
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.status).to.equal(400);
+              expect(body.msg).to.equal(`Invalid additional keys on the request object - please only provide inc_votes.`);
+            })
+        })
+      })
+    })
   });
 });
