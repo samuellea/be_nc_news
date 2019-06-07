@@ -9,7 +9,7 @@ exports.sendArticleByID = (req, res, next) => {
     if (!article) {
       return Promise.reject({
         status: 404,
-        msg: `No article found with id ${article_id}`,
+        msg: `No article found with article_id ${article_id}`,
       });
     }
     res.status(200).send({ article });
@@ -38,9 +38,9 @@ exports.sendAllArticles = (req, res, next) => {
 };
 
 exports.sendUpdatedArticleByID = (req, res, next) => {
-  const { body } = req.query;
-  updateArticleByID(body).then(article => {
-    console.log(article, '<----- articles-controllers.js')
+  console.log(req.body, '<--------')
+  updateArticleByID(req.body, req.params).then(([article]) => {
     res.status(200).send({ article });
   })
+    .catch(next);
 }

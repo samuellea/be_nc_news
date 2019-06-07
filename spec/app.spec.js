@@ -222,7 +222,7 @@ describe('/', () => {
                 expect(body.article.comment_count).to.equal('13');
               })
           })
-          it('status:400 when passed an invalid ID', () => { // 400 bad request - invalid ID
+          it('status:400 when passed an invalid ID', () => {
             return request(app)
               .get('/api/articles/dog')
               .expect(400)
@@ -231,25 +231,95 @@ describe('/', () => {
                 expect(body.msg).to.equal('invalid input syntax for integer: "dog"');
               })
           })
-          it('status:404 when resource does not exist', () => { // 404 not found - resource doesnt exist on db
+          it('status:404 when resource does not exist', () => {
             return request(app)
               .get('/api/articles/99999')
               .expect(404)
               .then(({ body }) => {
                 expect(body.status).to.equal(404);
-                expect(body.msg).to.equal('No article found with id 99999')
+                expect(body.msg).to.equal('No article found with article_id 99999')
               })
           })
         })
+
         describe('PATCH', () => {
-          it('status:200 returns the succesfully updated article object with a new vote count', () => {
+          it('status:200 returns the updated article object with a newly incremented vote count', () => {
             return request(app)
               .patch('/api/articles/1')
+              .send({
+                inc_votes: 1
+              })
               .expect(200)
               .then(({ body }) => {
-
+                expect(body.article).to.eql({
+                  article_id: 1,
+                  title: 'Living in the shadow of a great man',
+                  body: 'I find this existence challenging',
+                  votes: 101,
+                  topic: 'mitch',
+                  author: 'butter_bridge',
+                  created_at: '2018-11-15T12:21:54.171Z'
+                })
+                expect(body.article.votes).to.equal(101);
               })
           })
+          it('status:200 returns the updated article object with a newly decremented vote count', () => {
+            return request(app)
+              .patch('/api/articles/1')
+              .send({
+                inc_votes: -50
+              })
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.article).to.eql({
+                  article_id: 1,
+                  title: 'Living in the shadow of a great man',
+                  body: 'I find this existence challenging',
+                  votes: 50,
+                  topic: 'mitch',
+                  author: 'butter_bridge',
+                  created_at: '2018-11-15T12:21:54.171Z'
+                })
+                expect(body.article.votes).to.equal(50);
+              })
+          })
+          it('status:400 no inc_votes on request body', () => {
+            return request(app)
+              .patch('/api/articles/1')
+              .send({})
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.status).to.equal(400);
+                expect(body.msg).to.equal(`A key of inc_votes is required on the request body!`);
+              })
+          })
+
+          it('status:400 Invalid inc_votes', () => {
+            return request(app)
+              .patch('/api/articles/1')
+              .send({
+                inc_votes: 'cat'
+              })
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.status).to.equal(400);
+                expect(body.msg).to.equal(`inc_votes of 'cat' is invalid - please provide an integer.`);
+              })
+          })
+
+          it(`status:400 Some other property on request body `, () => {
+            return request(app)
+              .patch('/api/articles/1')
+              .send({
+                inc_votes: 5, name: 'Mitch'
+              })
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.status).to.equal(400);
+                expect(body.msg).to.equal(`Invalid additional keys on the request object - please only provide inc_votes.`);
+              })
+          })
+
         })
       })
 
