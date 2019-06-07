@@ -28,3 +28,9 @@ exports.updateCommentByID = (body, { comment_id }) => {
     })
     .returning('*')
 }
+
+exports.deleteCommentByID = comment_id => {
+  return connection('comments')
+    .where('comment_id', '=', comment_id)
+    .del();
+}

@@ -456,7 +456,7 @@ describe('/', () => {
       });
     });
 
-    describe.only('comments', () => {
+    describe('/comments', () => {
       describe('PATCH', () => {
         it('status:200 returns the updated comment object with a newly incremented vote count', () => {
           return request(app)
@@ -530,6 +530,22 @@ describe('/', () => {
             .then(({ body }) => {
               expect(body.status).to.equal(400);
               expect(body.msg).to.equal(`Invalid additional keys on the request object - please only provide inc_votes.`);
+            })
+        })
+      })
+      describe('DELETE', () => {
+        it('status:204 deletes a comment with the given comment_id', () => {
+          return request(app)
+            .delete('/api/comments/18')
+            .expect(204);
+        })
+        it('status:404 if trying to delete a comment that doesn\'t exist', () => {
+          return request(app)
+            .delete('/api/comments/99999')
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.status).to.equal(404);
+              expect(body.msg).to.equal(`Cannot delete - no comment exists with comment_id 99999`);
             })
         })
       })
