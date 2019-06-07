@@ -59,3 +59,24 @@ exports.updateArticleByID = (body, { article_id }) => {
     .returning('*')
 }
 
+exports.insertCommentByArticleID = ({ username, body }, { article_id }) => {
+  return connection
+    .insert({ 'author': username, body, article_id }) // able to insert comment before inserting user first (signing up)? user must exist first, surely?
+    .into('comments')
+    .returning('*');
+}
+
+exports.selectCommentsByArticleID = (article_id, { sort_by = 'created_at', order = 'desc' }) => {
+  if (order !== 'asc' && order !== 'desc') {
+    return Promise.reject({
+      status: 400,
+      msg: `Invalid order: ${order}`,
+    });
+  };
+  return connection
+    .select('*')
+    .from('comments')
+    .where('article_id', article_id)
+    .orderBy(sort_by, order)
+    .returning('*')
+}

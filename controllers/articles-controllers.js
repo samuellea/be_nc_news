@@ -1,4 +1,4 @@
-const { selectAllArticles, selectArticleByID, updateArticleByID } = require("../models/articles-models.js");
+const { selectAllArticles, selectArticleByID, updateArticleByID, insertCommentByArticleID, selectCommentsByArticleID } = require("../models/articles-models.js");
 const { selectUserByUsername } = require("../models/users-models.js")
 const { selectTopicBySlug } = require("../models/topics-models.js")
 const { generateArticlesErrMsg } = require('../utils/index.js')
@@ -38,9 +38,41 @@ exports.sendAllArticles = (req, res, next) => {
 };
 
 exports.sendUpdatedArticleByID = (req, res, next) => {
-  console.log(req.body, '<--------')
   updateArticleByID(req.body, req.params).then(([article]) => {
     res.status(200).send({ article });
   })
     .catch(next);
 }
+
+exports.sendPostedComment = (req, res, next) => {
+  insertCommentByArticleID(req.body, req.params).then(([comment]) => {
+    res.status(201).send({ comment });
+  })
+}
+
+exports.sendCommentsByArticleID = (req, res, next) => {
+  const { article_id } = req.params
+  selectCommentsByArticleID(article_id, req.query).then(comments => {
+    if (!comments.length) {
+      return selectArticleByID(article_id);
+    } else {
+      res.status(200).send({ comments })
+    }
+  })
+    .then(articleSearchResult => {
+      if (articleSearchResult.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Article with article_id ${article_id} doesn't exist.`,
+        });
+      } else {
+        return Promise.reject({
+          status: 404,
+          msg: `This article has no comments yet.`,
+        });
+      }
+    })
+    .catch(next);
+}
+
+

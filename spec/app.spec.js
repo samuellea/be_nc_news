@@ -209,7 +209,7 @@ describe('/', () => {
         });
       });
 
-      describe.only('/:article_id', () => {
+      describe('/:article_id', () => {
         describe('GET', () => {
           it('status:200 responds with an article object for the given article_id', () => {
             return request(app)
@@ -321,9 +321,139 @@ describe('/', () => {
           })
 
         })
-      })
 
+        describe('/comments', () => {
+          describe('POST', () => {
+            it('status:201 responds with a newly created comment for an article', () => {
+              return request(app)
+                .post('/api/articles/3/comments')
+                .send({
+                  username: 'rogersop',
+                  body: 'Ha! Ha! These pug gifs sure made me chuckle.'
+                })
+                .expect(201)
+                .then(({ body }) => {
+                  expect(body.comment).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'body', 'created_at');
+                  expect(body.comment).to.eql({
+                    'comment_id': 19,
+                    'author': 'rogersop',
+                    'article_id': 3,
+                    'votes': 0,
+                    'created_at': body.comment.created_at, // not quite sure best way to test this
+                    'body': 'Ha! Ha! These pug gifs sure made me chuckle.'
+                  })
+                })
+            })
+            // error-handling -- status:400 invalid keys on post object, status:400 required fields ('username','body') missing
+          })
+          describe.only('GET', () => {
+            it('status:200 responds with the comments for a given article when article has a single comment', () => {
+              return request(app)
+                .get('/api/articles/6/comments')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.have.lengthOf(1);
+                  expect(body.comments[0]).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
+                  expect(body.comments[0].comment_id).to.equal(16);
+                  expect(body.comments[0].author).to.equal('butter_bridge');
+                  expect(body.comments[0].article_id).to.equal(6);
+                  expect(body.comments[0].votes).to.equal(1);
+                  expect(body.comments[0].created_at).to.equal('2002-11-26T12:36:03.389Z');
+                  expect(body.comments[0].body).to.equal('This is a bad article name');
+                })
+            })
+            it('status:200 responds with the comments for a given article when article has multiple comment', () => {
+              return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.have.lengthOf(13);
+                  expect(body.comments[0]).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
+                  expect(body.comments[12]).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body');
+                  expect(body.comments[0].body).to.equal('The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.');
+                  expect(body.comments[12].body).to.equal('This morning, I showered for nine minutes.');
+                })
+            })
+            it('status:200 default sort_by = created_at, in desc order', () => {
+              return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.be.descendingBy('created_at');
+                })
+            });
+            it('status:200 can order_by asc', () => {
+              return request(app)
+                .get('/api/articles/1/comments?order=asc')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.be.ascendingBy('created_at');
+                })
+            });
+            it('status:200 can sort_by given column alphabetically (eg. author)', () => {
+              return request(app)
+                .get('/api/articles/1/comments?sort_by=author')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.be.descendingBy('author');
+                })
+
+            });
+            it('status:200 can sort_by given column numerically (eg. votes)', () => {
+              return request(app)
+                .get('/api/articles/1/comments?sort_by=votes')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.be.descendingBy('votes');
+                })
+            });
+            it('status:200 can sort_by and order_by, eg (article_id in asc order)', () => {
+              return request(app)
+                .get('/api/articles/1/comments?sort_by=article_id&order=asc')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.be.ascendingBy('article_id');
+                })
+            });
+            it(`status:400 for 'sort_by' a column that doesn't exist`, () => {
+              return request(app)
+                .get('/api/articles/1/comments?sort_by=animal')
+                .expect(400)
+                .then(({ body }) => {
+                  expect(body.msg).to.equal('column "animal" does not exist');
+                })
+            });
+            it('status:400 when order is neither "asc" / "desc"', () => {
+              return request(app)
+                .get('/api/articles/1/comments?order=animal')
+                .expect(400)
+                .then(({ body }) => {
+                  expect(body.status).to.equal(400);
+                  expect(body.msg).to.equal('Invalid order: animal');
+                })
+            });
+            it('status:404 when article_id doesn\'t have any comments yet', () => {
+              return request(app)
+                .get('/api/articles/12/comments')
+                .expect(404)
+                .then(({ body }) => {
+                  expect(body.status).to.equal(404);
+                  expect(body.msg).to.equal('This article has no comments yet.');
+                })
+            })
+            it('status:404 when article_id doesn\'t exist', () => {
+              return request(app)
+                .get('/api/articles/9999/comments')
+                .expect(404)
+                .then(({ body }) => {
+                  expect(body.status).to.equal(404);
+                  expect(body.msg).to.equal('Article with article_id 9999 doesn\'t exist.');
+                })
+            });
+          });
+
+        });
+      });
     });
   });
 });
-
