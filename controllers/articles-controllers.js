@@ -48,10 +48,11 @@ exports.sendPostedComment = (req, res, next) => {
   insertCommentByArticleID(req.body, req.params).then(([comment]) => {
     res.status(201).send({ comment });
   })
+    .catch(next);
 }
 
 exports.sendCommentsByArticleID = (req, res, next) => {
-  const { article_id } = req.params
+  const { article_id } = req.params;
   selectCommentsByArticleID(article_id, req.query).then(comments => {
     if (!comments.length) {
       return selectArticleByID(article_id);
@@ -66,10 +67,7 @@ exports.sendCommentsByArticleID = (req, res, next) => {
           msg: `Article with article_id ${article_id} doesn't exist.`,
         });
       } else {
-        return Promise.reject({
-          status: 404,
-          msg: `This article has no comments yet.`,
-        });
+        res.status(200).send({ comments: [] })
       }
     })
     .catch(next);

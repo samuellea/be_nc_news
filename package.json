@@ -13,7 +13,10 @@
     "seed": "knex seed:run",
     "dev": "nodemon listen.js",
     "start": "node listen.js",
-    "query": "psql -f ./query.sql > query.txt"
+    "query": "psql -f ./query.sql > query.txt",
+    "seed:prod": "NODE_ENV=production DB_URL=$(heroku config:get DATABASE_URL) knex seed:run",
+    "migrate-latest:prod": "NODE_ENV=production DB_URL=$(heroku config:get DATABASE_URL) knex migrate:latest",
+    "migrate-rollback:prod": "NODE_ENV=production DB_URL=$(heroku config:get DATABASE_URL) knex migrate:rollback"
   },
   "author": "",
   "license": "ISC",
@@ -30,5 +33,13 @@
     "nodemon": "^1.19.1",
     "supertest": "^4.0.2"
   },
-  "keywords": []
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuellea/be_nc_news.git"
+  },
+  "bugs": {
+    "url": "https://github.com/samuellea/be_nc_news/issues"
+  },
+  "homepage": "https://github.com/samuellea/be_nc_news#readme"
 }

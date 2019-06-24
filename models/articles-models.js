@@ -10,7 +10,7 @@ exports.selectArticleByID = article_id => {
     .groupBy('articles.article_id');
 };
 
-exports.selectAllArticles = ({ sort_by = 'created_at', order = 'desc', author, topic }) => {
+exports.selectAllArticles = ({ sort_by = 'created_at', order = 'desc', author, topic, limit, p }) => { ///
   if (order !== 'asc' && order !== 'desc') {
     return Promise.reject({
       status: 400,
@@ -28,33 +28,15 @@ exports.selectAllArticles = ({ sort_by = 'created_at', order = 'desc', author, t
       if (topic) query.where({ 'articles.topic': topic })
     })
     .orderBy(sort_by, order)
+    .limit(limit)
+    .offset(limit * (p - 1))
 };
 
-exports.updateArticleByID = (body, { article_id }) => {
-  const { inc_votes } = body;
-  if (!inc_votes) {
-    return Promise.reject({
-      status: 400,
-      msg: `A key of inc_votes is required on the request body!`,
-    });
-  }
-  if (typeof inc_votes !== 'number') {
-    return Promise.reject({
-      status: 400,
-      msg: `inc_votes of '${inc_votes}' is invalid - please provide an integer.`,
-    });
-  }
-  let keys = Object.keys(body);
-  if (keys.length !== 1 || keys[0] !== 'inc_votes') {
-    return Promise.reject({
-      status: 400,
-      msg: `Invalid additional keys on the request object - please only provide inc_votes.`,
-    });
-  }
+exports.updateArticleByID = ({ inc_votes = 0 }, { article_id }) => {
   return connection('articles')
     .where('article_id', '=', article_id)
-    .update({
-      'votes': connection.raw(`votes + ${inc_votes}`)
+    .modify((query) => {
+      if (inc_votes) query.increment('votes', inc_votes);
     })
     .returning('*')
 }
@@ -66,7 +48,7 @@ exports.insertCommentByArticleID = ({ username, body }, { article_id }) => {
     .returning('*');
 }
 
-exports.selectCommentsByArticleID = (article_id, { sort_by = 'created_at', order = 'desc' }) => {
+exports.selectCommentsByArticleID = (article_id, { sort_by = 'created_at', order = 'desc' }) => { ////
   if (order !== 'asc' && order !== 'desc') {
     return Promise.reject({
       status: 400,

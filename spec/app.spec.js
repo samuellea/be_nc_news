@@ -62,7 +62,7 @@ describe('/', () => {
       })
     })
 
-    describe('/articles', () => {
+    describe('/articles', () => { /// PAGINATION!
       describe('GET', () => {
         it('status:200 responds with an array of all articles', () => {
           return request(app)
@@ -283,42 +283,42 @@ describe('/', () => {
                 expect(body.article.votes).to.equal(50);
               })
           })
-          it('status:400 no inc_votes on request body', () => {
-            return request(app)
-              .patch('/api/articles/1')
-              .send({})
-              .expect(400)
-              .then(({ body }) => {
-                expect(body.status).to.equal(400);
-                expect(body.msg).to.equal(`A key of inc_votes is required on the request body!`);
-              })
-          })
+          // it('status:400 no inc_votes on request body', () => {
+          //   return request(app)
+          //     .patch('/api/articles/1')
+          //     .send({})
+          //     .expect(400)
+          //     .then(({ body }) => {
+          //       expect(body.status).to.equal(400);
+          //       expect(body.msg).to.equal(`A key of inc_votes is required on the request body!`);
+          //     })
+          // })
 
-          it('status:400 Invalid inc_votes', () => {
-            return request(app)
-              .patch('/api/articles/1')
-              .send({
-                inc_votes: 'cat'
-              })
-              .expect(400)
-              .then(({ body }) => {
-                expect(body.status).to.equal(400);
-                expect(body.msg).to.equal(`inc_votes of 'cat' is invalid - please provide an integer.`);
-              })
-          })
+          // it('status:400 Invalid inc_votes', () => {
+          //   return request(app)
+          //     .patch('/api/articles/1')
+          //     .send({
+          //       inc_votes: 'cat'
+          //     })
+          //     .expect(400)
+          //     .then(({ body }) => {
+          //       expect(body.status).to.equal(400);
+          //       expect(body.msg).to.equal(`inc_votes of 'cat' is invalid - please provide an integer.`);
+          //     })
+          // })
 
-          it(`status:400 Some other property on request body `, () => {
-            return request(app)
-              .patch('/api/articles/1')
-              .send({
-                inc_votes: 5, name: 'Mitch'
-              })
-              .expect(400)
-              .then(({ body }) => {
-                expect(body.status).to.equal(400);
-                expect(body.msg).to.equal(`Invalid additional keys on the request object - please only provide inc_votes.`);
-              })
-          })
+          // it(`status:400 Some other property on request body `, () => {
+          //   return request(app)
+          //     .patch('/api/articles/1')
+          //     .send({
+          //       inc_votes: 5, name: 'Mitch'
+          //     })
+          //     .expect(400)
+          //     .then(({ body }) => {
+          //       expect(body.status).to.equal(400);
+          //       expect(body.msg).to.equal(`Invalid additional keys on the request object - please only provide inc_votes.`);
+          //     })
+          // })
 
         })
 
@@ -344,8 +344,41 @@ describe('/', () => {
                   })
                 })
             })
-            // error-handling -- status:400 invalid keys on post object, status:400 required fields ('username','body') missing
+            it(`status:400 when post object has required 'username' and 'body' keys missing`, () => {
+              return request(app)
+                .post('/api/articles/1/comments')
+                .send({})
+                .expect(400)
+                .then(({ body }) => {
+                  expect(body.status).to.equal(400);
+                  expect(body.msg).to.equal('null value in column "author" violates not-null constraint');
+                })
+            });
+            it('status:400 when article_id is valid type, but no such article exists', () => {
+              return request(app)
+                .post('/api/articles/9999999/comments')
+                .send({
+                  username: 'rogersop',
+                  body: 'Ha! Ha! These pug gifs sure made me chuckle.'
+                })
+                .expect(400)
+                .then(({ body }) => {
+                  expect(body.status).to.equal(400);
+                  expect(body.msg).to.equal('insert or update on table "comments" violates foreign key constraint "comments_article_id_foreign"');
+                })
+            });
+            it('status:400 when article_id is invalid type', () => {
+              return request(app)
+                .post('/api/articles/banana/comments')
+                .send({})
+                .expect(400)
+                .then(({ body }) => {
+                  expect(body.status).to.equal(400);
+                  expect(body.msg).to.equal('invalid input syntax for integer: "banana"');
+                })
+            });
           })
+
           describe('GET', () => {
             it('status:200 responds with the comments for a given article when article has a single comment', () => {
               return request(app)
@@ -362,7 +395,7 @@ describe('/', () => {
                   expect(body.comments[0].body).to.equal('This is a bad article name');
                 })
             })
-            it('status:200 responds with the comments for a given article when article has multiple comment', () => {
+            it('status:200 responds with the comments for a given article when article has multiple comments', () => {
               return request(app)
                 .get('/api/articles/1/comments')
                 .expect(200)
@@ -415,6 +448,14 @@ describe('/', () => {
                   expect(body.comments).to.be.ascendingBy('article_id');
                 })
             });
+            it('status:200 serves an empty array when article has no comments', () => {
+              return request(app)
+                .get('/api/articles/12/comments')
+                .expect(200)
+                .then(({ body }) => {
+                  expect(body.comments).to.eql([]);
+                })
+            })
             it(`status:400 for 'sort_by' a column that doesn't exist`, () => {
               return request(app)
                 .get('/api/articles/1/comments?sort_by=animal')
@@ -432,15 +473,6 @@ describe('/', () => {
                   expect(body.msg).to.equal('Invalid order: animal');
                 })
             });
-            it('status:404 when article_id doesn\'t have any comments yet', () => {
-              return request(app)
-                .get('/api/articles/12/comments')
-                .expect(404)
-                .then(({ body }) => {
-                  expect(body.status).to.equal(404);
-                  expect(body.msg).to.equal('This article has no comments yet.');
-                })
-            })
             it('status:404 when article_id doesn\'t exist', () => {
               return request(app)
                 .get('/api/articles/9999/comments')
@@ -496,18 +528,42 @@ describe('/', () => {
               expect(body.comment.votes).to.equal(4);
             })
         })
-        it('status:400 no inc_votes on request body', () => {
+        it('status:200 if no inc_votes on request body', () => {
           return request(app)
             .patch('/api/comments/1')
             .send({})
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comment.comment_id).to.equal(1);
+              expect(body.comment.author).to.equal('butter_bridge');
+              expect(body.comment.votes).to.equal(16);
+            })
+        })
+        it('status:404 when comment_id is valid, but no such comment exists', () => {
+          return request(app)
+            .patch('/api/comments/1000')
+            .send({
+              inc_votes: 1
+            })
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.status).to.equal(404);
+              expect(body.msg).to.equal(`No comment found with comment_id 1000`);
+            })
+        })
+        it('status:400 when comment_id is invalid type', () => {
+          return request(app)
+            .patch('/api/comments/banana')
+            .send({
+              inc_votes: 1
+            })
             .expect(400)
             .then(({ body }) => {
               expect(body.status).to.equal(400);
-              expect(body.msg).to.equal(`A key of inc_votes is required on the request body!`);
+              expect(body.msg).to.equal(`invalid input syntax for integer: "banana"`);
             })
         })
-
-        it('status:400 Invalid inc_votes', () => {
+        it('status:400 Invalid inc_votes value', () => {
           return request(app)
             .patch('/api/comments/1')
             .send({
