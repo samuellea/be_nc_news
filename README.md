@@ -1,6 +1,6 @@
 # BE-NC-NEWS
 
-A RESTful API built using Express and Knex, serving up data from a PSQL database. This serves as the back-end for my Northcoders News project, a Reddit-style news aggregation board, found here - <br/><br/>
+A RESTful API built using Express and Knex, serving up data from a PSQL database. This serves as the back end for my Northcoders News project, a Reddit-style news aggregation board, found here - <br/><br/>
 Netlify: [INSERT LINK HERE]<br/>
 Github: https://github.com/samuellea/fend-nc-news
 
