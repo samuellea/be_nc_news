@@ -17,8 +17,20 @@ describe('/', () => {
       return request(app)
         .get('/api')
         .expect(200)
-        .then(({ body }) => {
-          expect(body.ok).to.equal(true);
+        .then(({ body, status }) => {
+          expect(status).to.equal(200);
+          expect(Object.keys(body)).to.eql([
+            'GET /api',
+            'GET /api/topics',
+            'GET /api/articles',
+            'GET /api/articles/:article_id',
+            'PATCH /api/articles/:article_id',
+            'GET /api/articles/:article_id/comments',
+            'POST /api/articles/:article_id/comments',
+            'PATCH /api/comments/:comment_id/',
+            'DELETE /api/comments/:comment_id/',
+            'GET /api/users/:username'
+          ])
         });
     });
 

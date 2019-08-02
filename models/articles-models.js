@@ -28,8 +28,8 @@ exports.selectAllArticles = ({ sort_by = 'created_at', order = 'desc', author, t
       if (topic) query.where({ 'articles.topic': topic })
     })
     .orderBy(sort_by, order)
-    .limit(limit)
-    .offset(limit * (p - 1))
+  // .limit(limit)
+  // .offset(limit * (p - 1))
 };
 
 exports.updateArticleByID = ({ inc_votes = 0 }, { article_id }) => {

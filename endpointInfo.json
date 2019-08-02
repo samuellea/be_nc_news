@@ -16,7 +16,12 @@
   },
   "GET /api/articles": {
     "description": "responds with an array of all articles",
-    "queries": ["sort_by", "order", "author", "topic"],
+    "queries": [
+      "sort_by",
+      "order",
+      "author",
+      "topic"
+    ],
     "exampleResponse": {
       "articles": [
         {
@@ -49,8 +54,12 @@
   },
   "PATCH /api/articles/:article_id": {
     "description": "updates an article's votes property by article id, and returns the updated article",
-    "updates": ["inc_votes"],
-    "exampleRequest": { "inc_votes": 1 },
+    "updates": [
+      "inc_votes"
+    ],
+    "exampleRequest": {
+      "inc_votes": 1
+    },
     "exampleResponse": {
       "article": {
         "article_id": 1,
@@ -65,7 +74,10 @@
   },
   "GET /api/articles/:article_id/comments": {
     "description": "responds with an array of comments for the provided article_id",
-    "queries": ["sort_by", "order"],
+    "queries": [
+      "sort_by",
+      "order"
+    ],
     "exampleResponse": {
       "comments": [
         {
@@ -99,8 +111,12 @@
   },
   "PATCH /api/comments/:comment_id/": {
     "description": "updates a comment's votes property by article id, and returns the updated comment",
-    "updates": ["inc_votes"],
-    "exampleRequest": { "inc_votes": -1 },
+    "updates": [
+      "inc_votes"
+    ],
+    "exampleRequest": {
+      "inc_votes": -1
+    },
     "exampleResponse": {
       "comment": {
         "comment_id": 1,
