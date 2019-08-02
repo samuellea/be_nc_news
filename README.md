@@ -1,36 +1,32 @@
 # BE-NC-NEWS
 
-A RESTful API built using Express and Knex, serving up data from a PSQL database. This serves as the back end for my Northcoders News project, a Reddit-style news aggregation board, found here - <br/><br/>
+A RESTful API built using Express and Knex, serving up data from a PSQL database. This serves as the back end for my Northcoders News project, a Reddit-style news aggregation and discussion board, found here - <br/><br/>
 Netlify: [INSERT LINK HERE]<br/>
 Github: https://github.com/samuellea/fend-nc-news
 
 ## Getting Started
 
-Fork and clone this project to your local machine, and run _npm install_.
+Fork and clone this project to your local machine, and once in the directory run `npm install`
 
 ### Prerequisites
 
-The latest version of Node.js
+The latest version of [Node.js](https://nodejs.org/).
 
 ## Running the tests
 
-The spec folder of this project contain automated test-suites, for the app for utils functions. Run these using _npm test_ and _npm test-utils_ respectively.
+The spec folder of this project contains automated test-suites, for the app and for utils functions. Run these respectively using `npm test` and `npm test-utils`.
 
 ## Built with
 
-- [Express][1]
-  [1]: https://expressjs.com/ "Express"
+- [Express](https://expressjs.com/)
 
-- [Knex][2]
-  [2]: http://knexjs.org/ "Knex"
+- [Knex](http://knexjs.org/)
 
-- [PostgreSQL][3]
-  [3]: https://https://www.postgresql.org/ "PostgreSQL"
+- [PostgreSQL](https://https://www.postgresql.org/)
 
 ## Author
 
-- [Sam Lea][1]
-  [1]: https://github.com/samuellea/ "Sam Lea"
+- [Sam Lea](https://github.com/samuellea/)
 
 ## Available Scripts
 
