@@ -2,11 +2,10 @@ const { articlesData, commentsData, topicsData, usersData } = require('../data')
 const { formatTimestamp, formatComments } = require('../../utils');
 
 exports.seed = (knex, Promise) => {
-  // console.log('Seeding...')
   return knex.migrate
     .rollback()
     .then(() => knex.migrate.latest())
-    .then(() => { // failing here
+    .then(() => {
       return knex('topics')
         .insert(topicsData)
         .returning('*')
@@ -29,5 +28,3 @@ exports.seed = (knex, Promise) => {
         .returning('*')
     })
 };
-
-// topics --> users --> articles --> comments
